@@ -1,0 +1,25 @@
+{
+
+    "manifest_version": 2,
+    "name": "Ledgerize",
+    "version": "1.0",
+
+    "description": "Adds Ledger export/conversion capabilities to various account statements.",
+    "homepage_url": "https://...",
+
+    "icons": {
+	"48": "icons/border-48.png"
+    },
+
+
+    "content_scripts": [
+	{
+	    "matches": ["*://*.desjardins.com/*"],
+	    "js": ["ledgerize.js"]
+	}
+    ],
+
+    "permissions": [
+	"*://*.desjardins.com/*"
+    ]
+}
