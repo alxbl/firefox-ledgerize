@@ -1,9 +1,29 @@
 "use strict";
 
+// TODO: Pull to desjadins module
+const MONTHS = {
+    'jan': 1, 'feb': 2, 'fév': 2, 'mar': 3, 'apr': 4,
+    'avr': 4, 'mai': 5, 'may': 5, 'jun': 6, 'jul': 7,
+    'aoû': 8, 'aug': 8, 'sep': 9, 'oct': 10, 'nov': 11,
+    'dec': 12, 'déc': 12
+};
+
 const desjardins = {
-    'inject': ledgerize_desjardins,
-    'convert': null,
-    'date': null,
+    inject: ledgerize_desjardins,
+    convert: null,
+    currency: c => {
+	let amt = c.replace('\u00a0', '');
+	if (amt.indexOf('.') < 0) amt = amt.replace(',', '.');
+	return amt.replace(',', '');
+    },
+    date: (s) => {
+	let [day, month, year] = s.toLowerCase().split('\u00a0');
+
+	year = parseInt(year);
+	month = MONTHS[month] - 1;
+	day = parseInt(day);
+	return new Date(year, month, day);
+    },
 };
 // Supported websites.
 const DISPATCH = {
@@ -48,17 +68,23 @@ function extractTable(e) {
     return { 'headers': headers, 'rows': rows };
 }
 
-function parse
+// function parse
 
 function ledgerize_desjardins(ctx) {
     // Verify that this is a statement page.
     // Inject the ledgerize buton and bind the handler.
     let ops = document.getElementById('dernieresoperations')
     if (!ops) return; // Not on a statement page.
+
     // Implementation of ledgerize handler here.
     let txs = extractTable(ops);
-    console.log(txs)
-    // Drop the first row (tfoot)
+
+    for (let i = 1; i < txs.rows.length - 1; i += 1) {
+        const r = txs.rows[i];
+    	const date = ctx.date(r[0]);
+	const desc = r[1];
+	const amt = (r[2] != '') ? '-' + ctx.currency(r[2]) : ctx.currency(r[3]);
+	// console.log(`${date} | ${desc} | ${amt}`);
+    }
     // Drop the last row (balance forward)
-    for 
 }
