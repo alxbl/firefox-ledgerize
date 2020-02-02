@@ -1,7 +1,8 @@
 const path = require('path');
 
 module.exports = {
-    mode: 'development',
+    mode: 'production',
+    devtool: 'source-map',
     entry: {
 	background: './src/background.js',
 	ledgerize:  './src/ledgerize.js',

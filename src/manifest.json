@@ -11,6 +11,10 @@
     },
 
 
+    "background": {
+    	"scripts": [ "background.min.js" ]
+    },
+
     "content_scripts": [
 	{
 	    "matches": ["*://*.desjardins.com/*"],
