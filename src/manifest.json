@@ -1,0 +1,30 @@
+{
+    "manifest_version": 2,
+    "name": "Ledgerize",
+    "version": "1.0",
+
+    "description": "Adds Ledger export/conversion capabilities to various account statement websites.",
+    "homepage_url": "https://github.com/alxbl/firefox-ledgerize",
+
+    "icons": {
+	"48": "icons/border-48.png"
+    },
+
+
+    "content_scripts": [
+	{
+	    "matches": ["*://*.desjardins.com/*"],
+	    "js": ["ledgerize.min.js"]
+	}
+    ],
+
+    "options_ui": {
+	"page": "settings.htm",
+	"browser_style": true,
+	"open_in_tab": true
+    },
+
+    "permissions": [
+	"*://*.desjardins.com/*"
+    ]
+}

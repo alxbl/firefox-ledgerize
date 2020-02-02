@@ -1,0 +1,32 @@
+{
+   "name": "ledgerize",
+   "version": "1.0.0",
+   "description": "WebExtension add-on to help converting bank statements into Ledger CLI entries.",
+   "main": "src/background.js",
+   "scripts": {
+      "build": "webpack",
+      "test": "echo \"Error: no test specified\" && exit 1"
+   },
+   "repository": {
+      "type": "git",
+      "url": "git+https://github.com/alxbl/firefox-ledgerize.git"
+   },
+   "keywords": [
+      "ledger",
+      "firefox",
+      "chrome",
+      "budget",
+      "finance",
+      "banking"
+   ],
+   "author": "Alexandre Beaulieu",
+   "license": "MIT",
+   "bugs": {
+      "url": "https://github.com/alxbl/firefox-ledgerize/issues"
+   },
+   "homepage": "https://github.com/alxbl/firefox-ledgerize#readme",
+   "devDependencies": {
+      "webpack": "^5.0.0-beta.13",
+      "webpack-cli": "^4.0.0-beta.1"
+   }
+}
