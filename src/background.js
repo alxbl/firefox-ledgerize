@@ -1,6 +1,11 @@
-import { config } from './core/config-impl.js';
+import { config } from './core/config.js';
 import './manifest.json';
 import './settings.htm';
+
+// Load configuration
+config.load().then(res => {
+    console.debug('Ledgerize extension loaded.', res);
+});
 
 // TODO: Refactor to make it easy to add new providers.
 import { provider as desjardins } from  './provider/desjardins.js';
@@ -8,8 +13,6 @@ const PROVIDERS = {}
 for (let u of desjardins.urls) {
     PROVIDERS[u] = desjardins;
 }
-
-console.debug('Ledgerize extension loaded.');
 
 const tabs = new Map(); // State of each registered tabs.
 
@@ -60,7 +63,7 @@ browser.runtime.onConnect.addListener(p => {
 	    break;
 
 	case "html": // Tab is document HTML.
-	    const provider = tabs.get(p);
+	    const ctx = tabs.get(p);
 	    // parseDocument(provider, m.content);
 	    break;
 

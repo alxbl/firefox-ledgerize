@@ -6,6 +6,7 @@ module.exports = {
     entry: {
 	background: './src/background.js',
 	ledgerize:  './src/ledgerize.js',
+	settings:  './src/settings.js',
     },
     output: {
 	filename: '[name].min.js',

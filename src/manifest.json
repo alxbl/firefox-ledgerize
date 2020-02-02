@@ -24,11 +24,18 @@
 
     "options_ui": {
 	"page": "settings.htm",
-	"browser_style": true,
-	"open_in_tab": true
+	"browser_style": true
     },
 
     "permissions": [
-	"*://*.desjardins.com/*"
-    ]
+	"*://*.desjardins.com/*",
+	"storage"
+    ],
+
+    "browser_specific_settings": {
+	"gecko": {
+	    "id": "ledgerize@segfault.me",
+	    "strict_min_version": "42.0"
+	}
+    }
 }

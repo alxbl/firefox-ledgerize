@@ -4,6 +4,33 @@
     <meta charset="utf-8"/>
   </head>
   <body>
-    TODO.
+    <h2>Rules</h2>
+    <form>
+      <label for="ruleFallback">Fallback Account</label>
+      <input name="ruleFallback" placeholder="Fallback Account">
+    </form>
+
+    <h2>Accounts</h2>
+    <select id="account-selector" name="accounts">
+      TODO
+    </select>
+    <hr>
+    <div id="account-details">
+      TODO
+    </div>
+
+    <h2>Provider Plugins</h2>
+    <div id="provider-list">
+      TODO
+    </div>
+
+
+    <!-- Should be automatic. -->
+    <button id="btn-save" value="Save Settings"/>
+    <div id="danger-zone">
+      <button id="btn-reset" value="Reset Settings"/>
+      <button id="btn-refresh" value="Force Reload" onclick="refresh" />
+    </div>
+    <script src="./settings.min.js"></script>
   </body>
 </html>
