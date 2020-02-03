@@ -7,35 +7,53 @@
     "homepage_url": "https://github.com/alxbl/firefox-ledgerize",
 
     "icons": {
-	"48": "icons/border-48.png"
+        "48": "icons/border-48.png"
     },
 
 
     "background": {
-    	"scripts": [ "background.min.js" ]
+            "scripts": [ "background.min.js" ]
     },
 
     "content_scripts": [
-	{
-	    "matches": ["*://*.desjardins.com/*"],
-	    "js": ["ledgerize.min.js"]
-	}
+        {
+            "matches": ["*://*.desjardins.com/*"],
+            "js": ["ledgerize.min.js"]
+        }
     ],
 
     "options_ui": {
-	"page": "settings.htm",
-	"browser_style": true
+        "page": "settings.htm",
+        "browser_style": true
     },
 
     "permissions": [
-	"*://*.desjardins.com/*",
-	"storage"
+        "*://*.desjardins.com/*",
+        "storage"
     ],
 
     "browser_specific_settings": {
-	"gecko": {
-	    "id": "ledgerize@segfault.me",
-	    "strict_min_version": "42.0"
-	}
+        "gecko": {
+            "id": "ledgerize@segfault.me",
+            "strict_min_version": "42.0"
+        }
+    },
+
+    "browser_action": {
+        "default_title": "Click to copy open bank statements into the clipboard",
+        "browser_style": true,
+        "default_icon": {
+            "16": "button/geo-16.png",
+            "32": "button/geo-32.png"
+        },
+        "theme_icons": [{
+            "light": "icons/geo-16-light.png",
+            "dark": "icons/geo-16.png",
+            "size": 16
+        }, {
+            "light": "icons/geo-32-light.png",
+            "dark": "icons/geo-32.png",
+            "size": 32
+        }]
     }
 }
