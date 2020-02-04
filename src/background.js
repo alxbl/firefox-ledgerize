@@ -7,13 +7,6 @@ config.load().then(res => {
     console.debug('Ledgerize extension loaded.', res);
 });
 
-// TODO: Refactor to make it easy to add new providers.
-import { provider as desjardins } from  './provider/desjardins.js';
-const PROVIDERS = {}
-for (let u of desjardins.urls) {
-    PROVIDERS[u] = desjardins;
-}
-
 const tabs = new Map(); // State of each registered tabs.
 
 export const LINE_WIDTH = 56 // Total columns for ledger spacing.
@@ -42,39 +35,47 @@ function toLedger(stmt) {
     return out;
 }
 
-// function parseDocument(provider, content) {
-//     const stmt = provider.parse(provider);
-//     stmt.transactions.sort(x => x.date);
-//     const ledger = toLedger(stmt);
-//     console.log(ledger.join('\n\n'));
-// }
+browser.browserAction.onClicked.addListener((tab, clickData) => {
+    console.debug('Ledgerize invoked for collection.');
+    collectTransactions();
+});
+
+
+function collectTransactions() {
+    let pending = [];
+    for (let e of tabs) {
+        const id = e[0];
+        const port = e[1];
+        pending.push(new Promise(resolve => {
+            port.onMessage.addListener(m => {
+                console.log('Accepted!', m);
+                resolve(m.content);
+            });
+            port.onDisconnect.addListener(e => {
+                console.error('tab disconnected!');
+                resolve(null);
+            });
+            console.log('Sending extract to tab ' + id);
+            port.postMessage({ type: "extract" });
+        }));
+    }
+
+    Promise.all(pending).then( res => {
+        // Dropping the provider here for simplicity.
+        const all = res.filter(x => x != null)
+                       .map(x => x.result)
+                       .reduce((acc, cur) => acc.concat(cur))
+        console.log(all);
+    })
+}
 
 browser.runtime.onConnect.addListener(p => {
-    p.onMessage.addListener(m => {
-	if (!m) return;
-	switch (m.type) {
-
-	case "register": // New tab connected.
-	    const provider = PROVIDERS[m.hostname]
-	    if (!provider) return;
-	    tabs.set(p, provider);
-	    p.postMessage({ type: "extract", query: null });
-	    console.debug('Tab registered for host: ' + m.hostname)
-	    break;
-
-	case "html": // Tab is document HTML.
-	    const ctx = tabs.get(p);
-	    // parseDocument(provider, m.content);
-	    break;
-
-	default:
-	    console.warn('Unknown message type: ' + m.type);
-	}
-	p.postMessage({ type: "registered" });
-    });
+    const id = p.sender.tab.id;
+    console.debug(`Tab ${id} registered`);
+    tabs.set(id, p);
 
     p.onDisconnect.addListener(x => {
-	if (x.error) console.error(x.error);
-	tabs.delete(p);
+        if (x.error) console.error(x.error);
+        tabs.delete(id);
     });
 });

@@ -15,11 +15,11 @@ const DEFAULT = {
     },
 };
 
-let cfg = DEFAULT;
+let compiled = null;
 
 async function load() {
     try {
-	cfg = await browser.storage.sync.get(CONFIG_KEY);
+	let cfg = await browser.storage.sync.get(CONFIG_KEY);
 	cfg = cfg[CONFIG_KEY] || DEFAULT;
 	// TODO: Compile final configuration.
 	console.debug('Loaded configuration', cfg);
@@ -53,6 +53,8 @@ function findAccount(detail) {
     }
     return state.ruleFallback;
 }
+
+// function addPattern(reg
 
 export const config = {
     load, save, reset, findAccount
