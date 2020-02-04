@@ -45,7 +45,6 @@ function desjardins() {
 	});
     }
 
-    console.log(12323);
     return transactions;
 }
 
