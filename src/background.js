@@ -1,26 +1,24 @@
 import { config } from './core/config.js';
 import './manifest.json';
 import './settings.htm';
+export const LINE_WIDTH = 56 // Refactor: Make into a setting.
 
-// Load configuration
+// Load configuration.
 config.load().then(res => {
-    console.debug('Ledgerize extension loaded.', res);
+    // TODO
 });
 
-const tabs = new Map(); // State of each registered tabs.
 
-export const LINE_WIDTH = 56 // Total columns for ledger spacing.
-// This function is responsible for doing alias lookups, and detail parsing
 function toLedger(stmt) {
     const fmt = new Intl.DateTimeFormat('en-CA') // YYYY/MM/DD
+    stmt.sort(x => x.date);
 
     let out = [];
-    // Get the account name:
-    let src = ACCOUNTS[stmt.account].alias || 'Assets:Cash';
     for (let tx of stmt.transactions) {
+        const src = config.getSourceAccount(tx.account);
     	const date = fmt.format(tx.date);
     	let entry = `${date} * ${tx.details}\n`;
-    	const dst = findAccount(tx.details);
+    	const dst = config.getDestinationAccount(tx.details);
     	const amt = tx.amount;
     	const spacing = LINE_WIDTH - tx.amount.length;
     	if (tx.direction > 0) {
@@ -32,14 +30,8 @@ function toLedger(stmt) {
     	}
     	out.push(entry);
     }
-    return out;
+    return out.join('\n\n');
 }
-
-browser.browserAction.onClicked.addListener((tab, clickData) => {
-    console.debug('Ledgerize invoked for collection.');
-    collectTransactions();
-});
-
 
 function collectTransactions() {
     let pending = [];
@@ -48,11 +40,10 @@ function collectTransactions() {
         const port = e[1];
         pending.push(new Promise(resolve => {
             port.onMessage.addListener(m => {
-                console.log('Accepted!', m);
+                // FIXME: Should validate message type.
                 resolve(m.content);
             });
             port.onDisconnect.addListener(e => {
-                console.error('tab disconnected!');
                 resolve(null);
             });
             console.log('Sending extract to tab ' + id);
@@ -65,10 +56,12 @@ function collectTransactions() {
         const all = res.filter(x => x != null)
                        .map(x => x.result)
                        .reduce((acc, cur) => acc.concat(cur))
-        console.log(all);
+        navigator.clipboard.writeText(toLedger(all));
+        // TODO: Add user feedback.
     })
 }
 
+const tabs = new Map(); // State of each registered tabs.
 browser.runtime.onConnect.addListener(p => {
     const id = p.sender.tab.id;
     console.debug(`Tab ${id} registered`);
@@ -78,4 +71,9 @@ browser.runtime.onConnect.addListener(p => {
         if (x.error) console.error(x.error);
         tabs.delete(id);
     });
+});
+
+browser.browserAction.onClicked.addListener((tab, clickData) => {
+    console.debug('Ledgerize invoked for collection.');
+    collectTransactions();
 });

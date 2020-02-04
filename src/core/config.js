@@ -13,6 +13,7 @@ const DEFAULT = {
 	    currency: '$',
 	}
     },
+    accountFallback: 'Assets:Unallocated',
 };
 
 let compiled = null;
@@ -46,16 +47,23 @@ function reset() {
 }
 
 
-function findAccount(detail) {
+// Gets the source account based on the account name a transaction belongs to.
+function getSourceAccount(name) {
+    // TODO: Be smarter about default account name. (Credit Cards, Stocks, ...)
+    const acc = state.accounts[name] || state.accountFallback
+
+}
+
+// Gets the destination account based on the configured rule patterns.
+function getDestinationAccount(detail) {
     for (let r of state.rules) {
-	let x = new RegExp(r.pattern) // FIXME: Precompile regular expressions.
+	let x = new RegExp(r.pattern) // Performance: Precompile regular expressions.
 	if (x.test(detail)) return r.account;
     }
     return state.ruleFallback;
 }
 
-// function addPattern(reg
 
 export const config = {
-    load, save, reset, findAccount
+    load, save, reset, getSourceAccount, getDestinationAccount,
 };

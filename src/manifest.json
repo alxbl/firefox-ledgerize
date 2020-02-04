@@ -29,7 +29,8 @@
 
     "permissions": [
         "*://*.desjardins.com/*",
-        "storage"
+        "storage",
+        "clipboardWrite"
     ],
 
     "browser_specific_settings": {
