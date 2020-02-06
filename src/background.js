@@ -14,21 +14,27 @@ function toLedger(stmt) {
     stmt.sort(x => x.date);
 
     let out = [];
-    for (let tx of stmt.transactions) {
-        const src = config.getSourceAccount(tx.account);
-    	const date = fmt.format(tx.date);
-    	let entry = `${date} * ${tx.details}\n`;
-    	const dst = config.getDestinationAccount(tx.details);
-    	const amt = tx.amount;
-    	const spacing = LINE_WIDTH - tx.amount.length;
-    	if (tx.direction > 0) {
-    	    const pad = Array(spacing - src.length + 1).join(' ');
-    	    entry += `    ${src}${pad}${tx.amount}\n    ${dst}`
-    	} else {
-    	    const pad = Array(spacing - dst.length + 1).join(' ');
-    	    entry += `    ${dst}${pad}${tx.amount}\n    ${src}`
-    	}
-    	out.push(entry);
+    for (let tx of stmt) {
+        const acc = config.getSourceAccount(tx.account);
+
+        const src = acc.name;
+        const dst = config.getDestinationAccount(tx.details);
+
+        const date = fmt.format(tx.date);
+        const currency = tx.currency || acc.currency; // Use currency hint when specified.
+        const amt = `${tx.amount} ${currency}`;
+
+        const spacing = LINE_WIDTH - tx.amount.length;
+
+        let entry = `${date} * ${tx.details}\n`;
+        if (tx.direction > 0) {
+            const pad = Array(spacing - src.length + 1).join(' ');
+            entry += `    ${src}${pad}${amt}\n    ${dst}`;
+        } else {
+            const pad = Array(spacing - dst.length + 1).join(' ');
+            entry += `    ${dst}${pad}${amt}\n    ${src}`;
+        }
+        out.push(entry);
     }
     return out.join('\n\n');
 }
@@ -46,7 +52,7 @@ function collectTransactions() {
             port.onDisconnect.addListener(e => {
                 resolve(null);
             });
-            console.log('Sending extract to tab ' + id);
+            console.debug('Sending extract to tab ' + id);
             port.postMessage({ type: "extract" });
         }));
     }

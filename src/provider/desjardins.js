@@ -17,9 +17,22 @@ function parseCurrency(c) {
 }
 
 function desjardins() {
-    // Verify that this is a statement page.
-    console.debug('Desjardins provider started');
-    let ops = document.getElementById('dernieresoperations')
+    /*
+      Desjardins has two tables:
+        1. The regular statement that shows the last 31 days
+        2. A custom search query results.
+      
+      When the custom query result table exists, prefer it over the
+      regular statement as the user has most likely explicitly made
+      this search and is expecting this to be exported.
+
+      Currently, only case 1 is supported. Case 2 is loaded in an
+      iframe and will require some tinkering to get working properly.
+      This can be done later.
+     */
+    let ops = document.getElementById('dernieresoperations');
+    // let custom =  document.getElementById('zone') // TODO
+
     if (!ops) return []; // Not on a statement page.
 
     // Extract account name.
