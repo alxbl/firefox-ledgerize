@@ -17,7 +17,10 @@
 
     "content_scripts": [
         {
-            "matches": ["*://*.desjardins.com/*"],
+            "matches": [
+                "https://*.desjardins.com/*",
+                "https://www.scotiaonline.scotiabank.com/*"
+            ],
             "js": ["ledgerize.min.js"]
         }
     ],
@@ -28,7 +31,6 @@
     },
 
     "permissions": [
-        "*://*.desjardins.com/*",
         "storage",
         "clipboardWrite"
     ],
