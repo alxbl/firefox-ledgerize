@@ -11,7 +11,7 @@ config.load().then(res => {
 
 function toLedger(stmt) {
     const fmt = new Intl.DateTimeFormat('en-CA') // YYYY/MM/DD
-    stmt.sort(x => x.date);
+    stmt.sort((lhs,rhs) => lhs.date - rhs.date);
 
     let out = [];
     for (let tx of stmt) {
