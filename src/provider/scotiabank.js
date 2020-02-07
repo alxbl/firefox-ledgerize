@@ -9,9 +9,9 @@ function parseDate(s) {
     year = parseInt(year);
     month = MONTHS[month] - 1;
     day = parseInt(day);
-    if (!year || !month || !day) return null;
 
-    return new Date(year, month, day);
+    const ret = new Date(year, month, day);
+    return ret.valueOf() ? ret : null;
 }
 
 function scotiabank() {
