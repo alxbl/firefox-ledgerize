@@ -1,4 +1,5 @@
 const path = require('path');
+const VueLoaderPlugin = require('vue-loader/lib/plugin')
 
 module.exports = {
     mode: 'production',
@@ -12,16 +13,12 @@ module.exports = {
 	filename: '[name].min.js',
 	path: path.resolve(__dirname, 'dist'),
     },
-    experiments: {asset: true},
     module: {
 	rules: [
-	    {
-		test: /(\.json|\.html?)$/,
-		type: 'asset/resource',
-		generator: {
-		    filename: '[name][ext]'
-		}
-	    }
+            { test: /\.vue$/, loader: 'vue-loader' }
 	]
     },
+    plugins: [
+        new VueLoaderPlugin()
+    ]
 };

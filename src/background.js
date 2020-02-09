@@ -1,6 +1,4 @@
 import { config } from './core/config.js';
-import './manifest.json';
-import './settings.htm';
 export const LINE_WIDTH = 56 // Refactor: Make into a setting.
 
 // Load configuration.
