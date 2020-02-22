@@ -36,30 +36,38 @@ function toLedger(stmt) {
     return out.join('\n\n');
 }
 
-function collectTransactions() {
+function collectTransactions(tabIds) {
     let pending = [];
-    for (let e of tabs) {
-        const id = e[0];
-        const port = e[1].port;
+
+    tabIds.forEach(id => {
+        const tab = tabs.get(id);
+        if (!tab) return; // Tab may have closed before we could extract it.
+
         pending.push(new Promise(resolve => {
-            port.onMessage.addListener(m => {
-                // FIXME: Should validate message type.
-                resolve(m.content);
-            });
-            port.onDisconnect.addListener(e => {
+            let onMsg = function(m) {
+                if (m.type != 'statement') {
+                    console.warn(`Unknown message from tab ${id}`, m);
+                    return;
+                }
+                console.debug(`Got statement from tab ${id}`, m.data);
+                tab.port.onMessage.removeListener(onMsg);
+                resolve(m.data);
+            };
+            tab.port.onMessage.addListener(onMsg);
+            tab.port.onDisconnect.addListener(e => {
+                tab.port.onMessage.removeListener(onMsg);
                 resolve(null);
             });
             console.debug('Sending extract to tab ' + id);
-            port.postMessage({ type: "extract" });
+            tab.port.postMessage({ type: "extract" });
         }));
-    }
+    });
 
     Promise.all(pending).then(res => {
         const all = res.filter(x => x != null)
-                       .map(x => x.result)
                        .reduce((acc, cur) => acc.concat(cur))
         navigator.clipboard.writeText(toLedger(all));
-        // TODO: Add user feedback.
+        // TODO: Send feedback to popup.
     })
 }
 
@@ -71,31 +79,40 @@ function handleTab(p) {
     p.onMessage.addListener(m => {
         // Tab will send the account name.
         if (m.type === 'available') {
-            console.debug(`Tab ${id} registered with account:`);
+            console.debug(`Tab ${id} registered with account: ${m.data}`);
             tabs.set(id, { port: p, account: m.data });
 
-            // TODO: Push the tabinfo to the popup if it's open. (TODO)
-            if (popup) popup.postMessage({type: 'popup.add', data: null});
+            // Push the tabinfo to the popup if it's open.
+            if (popup) popup.postMessage({type: 'popup.add', data: {id, account: m.data}});
         }
     });
 
     p.onDisconnect.addListener(x => {
         if (x.error) console.error(x.error);
-        tabs.delete(id);
         if (popup) popup.postMessage({type: 'popup.rem', data: id});
+        tabs.delete(id);
     });
 }
 
+function onPopupMessage(m) {
+    if (m.type !== 'extract') return;
+    console.debug('User requested extraction', m.data);
+    collectTransactions(m.data);
+}
 
 let popup = null; // Keep track of the popup port.
 function handlePopup(p) {
     // This is the new popup handle.
     popup = p;
 
-    p.postMessage({ type: 'popup.set', data: []}); // TODO:
+    const accounts = Array.from(tabs.entries(), ([id, v]) => {
+        return { id, account: v.account };
+    });
+
+    p.postMessage({ type: 'popup.set', data: accounts});
+    p.onMessage.addListener(onPopupMessage);
     p.onDisconnect.addListener(x => {
         if (x.error) console.error(x.error);
-        // No longer have a popup handle.
         popup = null; 
     });
                     
@@ -106,15 +123,9 @@ function main() {
         switch (p.name) {
             case 'ledgerize.tab': handleTab(p); break;
             case 'ledgerize.popup': handlePopup(p); break;
-            default: console.warn(`Unknown connection: ${p.name}`);
+            default: console.warn(`Unknown connection from ${p.name}`);
         }
     });
-
-    // FIXME: This must be done from the popup UI.
-    browser.browserAction.onClicked.addListener((tab, clickData) => {
-        collectTransactions();
-    });
 }
-
 
 main();

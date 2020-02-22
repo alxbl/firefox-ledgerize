@@ -23,20 +23,22 @@ import { lookup } from './providers.js';
 function main() {
     const provider = lookup(window.location.hostname);
     if (!provider) { // No matching provider found.
-        console.warn(`No provider found for '${window.location.hostname}'`);
+        console.warn(`[Ledgerize] No provider found for '${window.location.hostname}'`);
         return;
     }
 
     const account = provider.check();
     if (!account) return; // Not on a statement page.
+    console.debug(`[Ledgerize] Found account: '${account}' (Provider: ${provider.name} v${provider.version})`);
 
     let ext = browser.runtime.connect({name: 'ledgerize.tab'});
     ext.onMessage.addListener(m => {
         if (!m || m.type !== "extract") return;
 
         // Extract statement details and forward them to the extension.
+        console.debug('[Ledgerize] Received extract request');
         const stmt = provider.extract(account);
-        p.postMessage({ type: 'statement', data: stmt });
+        ext.postMessage({ type: 'statement', data: stmt });
     });
 
     // Notify the account name.

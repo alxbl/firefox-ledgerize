@@ -20,9 +20,5 @@ function register(p) {
 ].map(register);
 
 export function lookup(host){
-    const ctx = PROVIDERS.get(host) 
-    if (!ctx)  return null;
-    const res = ctx.collect();
-
-    return { provider: ctx.name, result: res };
+    return PROVIDERS.get(host) 
 }
