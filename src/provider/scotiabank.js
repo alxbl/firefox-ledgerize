@@ -14,15 +14,17 @@ function parseDate(s) {
     return ret.valueOf() ? ret : null;
 }
 
-function scotiabank() {
+/**
+ * Called by ledgerize when the user has requested transactions to be
+ * extracted.
+ */
+function extract(account) {
     const posted = document.getElementById('accDetailsPanelTransaction');
     if (!posted) return [];
 
     // TODO: Support Pending Transactions too? Will require extra field on transactions.
     // const ePending = document.getElementById('pending_form');
     // const pending = extractTable(ePending);
-
-    const account = document.getElementsByTagName('h1')[1].innerText;
 
     const stmt = extractTable(posted);
     let out = [];
@@ -38,9 +40,25 @@ function scotiabank() {
     return out;
 }
 
+/**
+ * Called by ledgerize to check if the tab is on a statement page that can be
+ * collected.
+ *
+ * @return The name of the account being displayed in this tab, null otherwise.
+ */
+function check() {
+    const posted = document.getElementById('accDetailsPanelTransaction');
+    if (!posted) return null;
+
+    // TODO: Check for pending too?
+
+    return document.getElementsByTagName('h1')[1].innerText;
+}
+
 export const provider = {
     name: 'Scotiabank',
     urls: ['www.scotiaonline.scotiabank.com'],
     version: '0.1',
-    collect: () => scotiabank(),
+    extract: (account) => extract(account),
+    check: () => check(),
 }

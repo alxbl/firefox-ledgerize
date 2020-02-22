@@ -6,7 +6,6 @@ config.load().then(res => {
     // TODO
 });
 
-
 function toLedger(stmt) {
     const fmt = new Intl.DateTimeFormat('en-CA') // YYYY/MM/DD
     stmt.sort((lhs,rhs) => lhs.date - rhs.date);
@@ -41,7 +40,7 @@ function collectTransactions() {
     let pending = [];
     for (let e of tabs) {
         const id = e[0];
-        const port = e[1];
+        const port = e[1].port;
         pending.push(new Promise(resolve => {
             port.onMessage.addListener(m => {
                 // FIXME: Should validate message type.
@@ -55,8 +54,7 @@ function collectTransactions() {
         }));
     }
 
-    Promise.all(pending).then( res => {
-        // Dropping the provider here for simplicity.
+    Promise.all(pending).then(res => {
         const all = res.filter(x => x != null)
                        .map(x => x.result)
                        .reduce((acc, cur) => acc.concat(cur))
@@ -65,19 +63,58 @@ function collectTransactions() {
     })
 }
 
-const tabs = new Map(); // State of each registered tabs.
-browser.runtime.onConnect.addListener(p => {
+const tabs = new Map(); // State of each registered tabs. (id -> TabInfo)
+
+function handleTab(p) {
     const id = p.sender.tab.id;
-    console.debug(`Tab ${id} registered`);
-    tabs.set(id, p);
+
+    p.onMessage.addListener(m => {
+        // Tab will send the account name.
+        if (m.type === 'available') {
+            console.debug(`Tab ${id} registered with account:`);
+            tabs.set(id, { port: p, account: m.data });
+
+            // TODO: Push the tabinfo to the popup if it's open. (TODO)
+            if (popup) popup.postMessage({type: 'popup.add', data: null});
+        }
+    });
 
     p.onDisconnect.addListener(x => {
         if (x.error) console.error(x.error);
         tabs.delete(id);
+        if (popup) popup.postMessage({type: 'popup.rem', data: id});
     });
-});
+}
 
-browser.browserAction.onClicked.addListener((tab, clickData) => {
-    console.debug('Ledgerize invoked for collection.');
-    collectTransactions();
-});
+
+let popup = null; // Keep track of the popup port.
+function handlePopup(p) {
+    // This is the new popup handle.
+    popup = p;
+
+    p.postMessage({ type: 'popup.set', data: []}); // TODO:
+    p.onDisconnect.addListener(x => {
+        if (x.error) console.error(x.error);
+        // No longer have a popup handle.
+        popup = null; 
+    });
+                    
+}
+function main() {
+    // Listen for connecting tabs or popup window.
+    browser.runtime.onConnect.addListener(p => {
+        switch (p.name) {
+            case 'ledgerize.tab': handleTab(p); break;
+            case 'ledgerize.popup': handlePopup(p); break;
+            default: console.warn(`Unknown connection: ${p.name}`);
+        }
+    });
+
+    // FIXME: This must be done from the popup UI.
+    browser.browserAction.onClicked.addListener((tab, clickData) => {
+        collectTransactions();
+    });
+}
+
+
+main();

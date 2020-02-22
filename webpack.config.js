@@ -8,6 +8,7 @@ module.exports = {
 	background: './src/background.js',
 	ledgerize:  './src/ledgerize.js',
 	settings:  './src/settings.js',
+	popup:  './src/popup.js',
     },
     output: {
 	filename: '[name].min.js',

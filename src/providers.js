@@ -3,7 +3,7 @@ import { provider as scotiabank } from './provider/scotiabank.js';
 
 const PROVIDERS = new Map();
 
-function registerProvider(p) {
+function register(p) {
     for (let u of p.urls) PROVIDERS.set(u, p);
 }
 
@@ -17,9 +17,9 @@ function registerProvider(p) {
 [
     desjardins,
     scotiabank
-].map(registerProvider);
+].map(register);
 
-export function dispatch(host){
+export function lookup(host){
     const ctx = PROVIDERS.get(host) 
     if (!ctx)  return null;
     const res = ctx.collect();

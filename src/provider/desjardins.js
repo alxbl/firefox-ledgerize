@@ -16,7 +16,11 @@ function parseCurrency(c) {
     return amt.replace(',', '');
 }
 
-function desjardins() {
+/**
+ * Called by ledgerize when the user has requested transactions to be
+ * extracted.
+ */
+function extract(account) {
     /*
       Desjardins has two tables:
         1. The regular statement that shows the last 31 days
@@ -34,12 +38,6 @@ function desjardins() {
     // let custom =  document.getElementById('zone') // TODO
 
     if (!ops) return []; // Not on a statement page.
-
-    // Extract account name.
-    const account = document
-	  .getElementsByClassName("panel-body-detail-compte")[0]
-	  .getElementsByTagName('strong')[2]
-	  .innerText;
 
     let txs = extractTable(ops);
 
@@ -61,9 +59,26 @@ function desjardins() {
     return transactions;
 }
 
+/**
+ * Called by ledgerize to check if the tab is on a statement page that can be
+ * collected.
+ *
+ * @return The name of the account being displayed in this tab, null otherwise.
+ */
+function check() {
+    let ops = document.getElementById('dernieresoperations');
+    if (!ops) return null; // Not on a statement page.
+
+    return document
+	  .getElementsByClassName("panel-body-detail-compte")[0]
+	  .getElementsByTagName('strong')[2]
+	  .innerText;
+}
+
 export const provider = {
     name: 'Desjardins',
     urls: ['accesd.mouv.desjardins.com'],
     version: '0.1',
-    collect: () => desjardins(),
+    extract: (account) => extract(account),
+    check: () => check(),
 };
