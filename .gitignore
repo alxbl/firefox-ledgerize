@@ -1,2 +1,4 @@
-dist/*.min.*
 node_modules
+*.min.js
+*.min.css
+*.map
