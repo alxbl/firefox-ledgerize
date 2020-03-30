@@ -1,14 +1,15 @@
 // MONTH abbreviation to digit lookup.
-export const MONTHS = {
+export const MONTHS: any = {
     'jan': 1, 'feb': 2, 'fév': 2, 'mar': 3, 'apr': 4,
     'avr': 4, 'mai': 5, 'may': 5, 'jun': 6, 'jul': 7,
     'aoû': 8, 'aug': 8, 'sep': 9, 'oct': 10, 'nov': 11,
     'dec': 12, 'déc': 12
 };
 
+export type Option<T> = T | null;
 
 // Parse the DOM and extract the first table rooted in the given tree.
-export function extractTable(e) {
+export function extractTable(e: any) {
     if (!e) return {};
     let table = e.getElementsByTagName('table')
     if (table && table.length > 0) table = table[0];
@@ -32,7 +33,8 @@ export function extractTable(e) {
     // FIXME: If header is not first row, this will fail.
     for (var i = 1; i < rs.length; i += 1) {
 	let r = rs[i];
-	let row = {};
+        // FIXME: Explicit typing.
+	let row: any = {};
 
 	for (var c = 0; c < r.cells.length; c += 1)
 	    row[c] = row[headers[c]] = r.cells[c].innerText;

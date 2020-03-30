@@ -18,7 +18,7 @@
 **/
 "use strict";
 
-import { lookup } from './providers.js';
+import { lookup } from './providers';
 
 function main() {
     const provider = lookup(window.location.hostname);
@@ -31,8 +31,8 @@ function main() {
     if (!account) return; // Not on a statement page.
     console.debug(`[Ledgerize] Found account: '${account}' (Provider: ${provider.name} v${provider.version})`);
 
-    let ext = browser.runtime.connect({name: 'ledgerize.tab'});
-    ext.onMessage.addListener(m => {
+    let ext = browser.runtime.connect('ledgerize.tab');
+    ext.onMessage.addListener((m: any) => {
         if (!m || m.type !== "extract") return;
 
         // Extract statement details and forward them to the extension.
