@@ -27,11 +27,39 @@ For a complete list of URLs, see `manifest.json`
 
 ## Currently Supported Sites
 
-- Desjardins AccessD (All accounts)
-
-## In Progress
-
+- Desjardins AccessD
 - Scotiabank (Credit Card Statements)
+
+## Configuration
+
+This section explains how to configure
+### Adding New Accounts
+
+TODO
+
+### Managing Account Aliases
+
+TODO
+
+### Managing Transaction Rules
+
+TODO
+
+### Synchronizing Settings
+
+> Note: Right now Sync storage is used by default, the text below
+>       will need to be revised.
+
+By default, settings are stored in the browser's local storage and
+are unique to the browser instance they were configured on.
+
+It is possible, if logged-in to an account and if `Add-on
+Synchronization` is enabled to tell Ledgerize to synchronize across
+multiple browser. 
+
+### Export Preamble
+
+TODO
 
 
 # Architecture
