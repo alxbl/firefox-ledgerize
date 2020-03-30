@@ -16,48 +16,54 @@ export class Rule {
 /// to match the financial institution's bank account identifier with
 /// the Ledger account name which represents it.
 export class Account {
-    constructor(public nam: string,
-                public aliases: Array<string>,
-                public currency: string,
-                public rules: Array<Rule>) {}
-    // /// The Ledger CLI name for this account.
-    // ///
-    // /// This is usually something like
-    // ///
-    // ///     `Assets:Savings:Bank Name`
-    // ///
-    // /// or
-    // ///
-    // ///     `Liablities:Credit Card:Bank Name`
-    // ///
-    // /// This is the name that will be used as the source account for
-    // /// all transactions exported from this bank account.
-    // name: string;
+    constructor(name: string,
+                aliases: Array<string>,
+                currency: string,
+                rules: Array<Rule>) {
+        this.name = name;
+        this.aliases = aliases;
+        this.currency = currency;
+        this.rules = rules;
+    }
 
-    // /// Aliases used to identify the account in Ledgerize.
-    // ///
-    // /// Since financial insitutions have different methods for
-    // /// identifying accounts, which sometimes change depending on the
-    // /// page or language, It is possible to specify multiple names for
-    // /// the same Ledger account.  Any of these names will be mapped to
-    // /// the Ledger account they belong to when Ledgerize exports
-    // /// transactions from a financial institution's website.
-    // aliases: [string];
+    /// The Ledger CLI name for this account.
+    ///
+    /// This is usually something like
+    ///
+    ///     `Assets:Savings:Bank Name`
+    ///
+    /// or
+    ///
+    ///     `Liablities:Credit Card:Bank Name`
+    ///
+    /// This is the name that will be used as the source account for
+    /// all transactions exported from this bank account.
+    name: string;
 
-    // /// The currency of this account.
-    // ///
-    // /// This currency symbol wlll be useda s a fallback unless a
-    // /// transaction specifically overrides it.  Some providers which
-    // /// support multiple currencies will not use this field at all
-    // ///
-    // /// Currency symbols are arbitrary strings that will be used as-is
-    // /// in the exported Ledger data.
-    // currency: string;
+    /// Aliases used to identify the account in Ledgerize.
+    ///
+    /// Since financial insitutions have different methods for
+    /// identifying accounts, which sometimes change depending on the
+    /// page or language, It is possible to specify multiple names for
+    /// the same Ledger account.  Any of these names will be mapped to
+    /// the Ledger account they belong to when Ledgerize exports
+    /// transactions from a financial institution's website.
+    aliases: Array<string>;
 
-    // /// A list of rules to map this account's payees to Ledger accounts.
-    // rules: Array<Rule>;
+    /// The currency of this account.
+    ///
+    /// This currency symbol wlll be useda s a fallback unless a
+    /// transaction specifically overrides it.  Some providers which
+    /// support multiple currencies will not use this field at all
+    ///
+    /// Currency symbols are arbitrary strings that will be used as-is
+    /// in the exported Ledger data.
+    currency: string;
 
-    // /// Account Metadata for Ledgerize.
+    /// A list of rules to map this account's payees to Ledger accounts.
+    rules: Array<Rule>;
+
+    /// Account Metadata for Ledgerize.
     // _meta: Metadata = new Metadata();
 }
 
@@ -76,19 +82,19 @@ export class Account {
 /// Transaction state.
 export enum State {
     /// No specific sate set.
-    UNSET,
+    Unset,
     /// Pending state (`!`).
-    PENDING,
+    Pending,
     /// Cleared state (`*`).
-    CLEARED
+    Cleared
 }
 
 /// Indicates the flow of money.
 export enum Flow {
     /// Money being moved out of account.
-    DEBIT, 
+    Debit, 
     /// Money bieng moved into account.
-    CREDIT,
+    Credit,
 }
 
 /// Represents a single transaciton from one account to another.
