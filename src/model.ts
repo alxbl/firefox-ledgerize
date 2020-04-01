@@ -109,7 +109,7 @@ export class Transaction {
         this.amount = amount;
         this.currency = '';
         this.payee = payee;
-        this.state = State.CLEARED;
+        this.state = State.Cleared;
         this.flow = flow;
     }
 
