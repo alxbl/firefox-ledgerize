@@ -11,7 +11,10 @@ const PROVIDERS = new Map<string, IProvider>();
     Scotiabank,
 ].forEach(c => {
     let p = new c();
-    for (let u of p.urls) PROVIDERS.set(u, p);
+    for (let u of p.urls) {
+        console.debug('[Ledgerize] Registering provider: ' + u);
+        PROVIDERS.set(u, p);
+    }
 });
 
 export function lookup(host: string): Option<IProvider> {

@@ -23,7 +23,7 @@ import { lookup } from './providers';
 function main() {
     const provider = lookup(window.location.hostname);
     if (!provider) { // No matching provider found.
-        console.warn(`[Ledgerize] No provider found for '${window.location.hostname}'`);
+        console.debug(`[Ledgerize] No provider found for '${window.location.hostname}'`);
         return;
     }
 
@@ -31,7 +31,8 @@ function main() {
     if (!account) return; // Not on a statement page.
     console.debug(`[Ledgerize] Found account: '${account}' (Provider: ${provider.name} v${provider.version})`);
 
-    let ext = browser.runtime.connect('ledgerize.tab');
+    // BUG: TypScript bindings say we need a string here but this doesn't work.
+    let ext = browser.runtime.connect(<any>{name: 'ledgerize.tab'});
     ext.onMessage.addListener((m: any) => {
         if (!m || m.type !== "extract") return;
 

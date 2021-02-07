@@ -92,9 +92,9 @@ export enum State {
 /// Indicates the flow of money.
 export enum Flow {
     /// Money being moved out of account.
-    Debit, 
-    /// Money bieng moved into account.
-    Credit,
+    Debit = 1, 
+    /// Money being moved into account.
+    Credit = -1,
 }
 
 /// Represents a single transaciton from one account to another.
