@@ -1,13 +1,18 @@
-import { MONTHS, extractTable, Option } from '../core/utils';
+import { MONTHS, extractTable, Option, Table, Row } from '../core/utils';
 import { IProvider, Transaction, Flow } from '../model';
 
 function parseDate(s: string): Date {
-    let [dd, mmm, yyyy] = s.toLowerCase().split('\u00a0');
+    let [dd, mmm, yyyy] = s.toLowerCase().replace('\u00a0',' ').split(' ');
 
     let year = parseInt(yyyy);
     let month = MONTHS[mmm] - 1;
     let day = parseInt(dd);
+    console.log('PPPP', year, month, day);
     return new Date(year, month, day);
+}
+
+function rowPredicate(r: Row<string>): boolean {
+    return !!parseDate(r.get(0)).getTime();
 }
 
 function parseCurrency(c: string): string {
@@ -39,33 +44,40 @@ export class Desjardins implements IProvider {
         // regular statement as the user has most likely explicitly made
         // this search and is expecting this to be exported.
 
-        // Currently, only case 1 is supported. Case 2 is loaded in an
-        // iframe and will require some tinkering to get working properly.
-        // This can be done later.
-        let ops = document.getElementById('dernieresoperations');
-        // let custom =  document.getElementById('zone') // TODO
+        let transactions: Option<Table<string>> = null;
 
-        if (!ops) return []; // Not on a statement page.
-
-        // FIXME: No Any
-        let txs = <any>extractTable(ops);
-
-        const transactions = []
-        for (let i = 1; i < txs.rows.length - 1; i += 1) {
-            const r = txs.rows[i];
-            const date = parseDate(r[0]);
-            const payee = r[1];
-            const amount = (r[2] != '') ? parseCurrency(r[2]) : parseCurrency(r[3]);
-            transactions.push(new Transaction(
-                date,
-                account,
-                amount,
-                payee,
-                (r[2] != '') ? Flow.Debit : Flow.Credit
-            ));
+        let modal = <HTMLIFrameElement>document.getElementById('modaleIFrame');
+        if (modal && modal.contentDocument) {
+            try {
+                console.log('ATTEMPTING TO EXTRACT FROM MODAL...');
+                let domTable = modal.contentDocument
+                    .getElementsByName('RechercheOperationsForm')[0]
+                    .getElementsByTagName('table')[2]
+                // This is a specific search, use the transactions from the result view.
+                transactions = extractTable<string>(domTable, rowPredicate);
+                console.log('SUCCESS', transactions);
+            }
+            catch(e) { console.log(e) } // Not a valid modal.
         }
 
-        return transactions;
+        if (!transactions) {
+            // Otherwise, try to get any displayed transactions.
+            let ops = document.getElementById('dernieresoperations');
+            if (!ops) return []; // No treansactions displayed.
+            transactions = extractTable<string>(ops, rowPredicate);
+        }
+        
+        if (!transactions) return [];
+
+        return transactions.map(row => {
+            const date = parseDate(row.get(0));
+            const payee = row.get(1);
+            const withdrawn = row.get(2);
+            const deposited = row.get(3);
+            const flow = withdrawn !== '' ? Flow.Debit : Flow.Credit;
+            const amount = parseCurrency((withdrawn !== '') ? withdrawn : deposited);
+            return new Transaction(date, account, amount, payee, flow);
+        });
     }
 
     /// Called by ledgerize to check if the tab is on a statement page that can be

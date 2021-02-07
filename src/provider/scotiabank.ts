@@ -1,7 +1,7 @@
 import { MONTHS, extractTable, Option } from '../core/utils';
 import { IProvider, Transaction, Flow } from '../model';
 
-function parseDate(s: string):  Option<Date> {
+function parseDate(s: string): Option<Date> {
     let [mmm, dd, yyyy] = s.toLowerCase()
         .replace('.', '')
         .replace(',', '')
@@ -14,6 +14,8 @@ function parseDate(s: string):  Option<Date> {
     const ret = new Date(year, month, day);
     return ret.valueOf() ? ret : null;
 }
+
+function dropNulls<T>(e: T | null): e is T { return e !== null; }
 
 export class Scotiabank implements IProvider {
 
@@ -31,31 +33,27 @@ export class Scotiabank implements IProvider {
         // const ePending = document.getElementById('pending_form');
         // const pending = extractTable(ePending);
 
-        const stmt = <any>extractTable(posted);
-        let out = [];
-        for (let r of stmt.rows) {
-            const date = parseDate(r[0]);
-            if (!date) continue; // Not a transaction.
+        const stmt = extractTable<string>(posted);
+        if (!stmt) return [];
 
-            const details = r[2];
-            const amount = r[3] == "" ? r[4] : r[3]
-            const direction = r[3] == "" ? Flow.Credit : Flow.Debit;
-            let tx = new Transaction(
-                date,
-                account,
-                amount,
-                details,
-                direction
-            );
-            out.push(tx);
-        }
-        return out;
+        return stmt.map(row => {
+            const date = parseDate(row.get(0));
+            if (!date) return null; // Not a transaction.
+
+            const details = row.get(2);
+            const credited = row.get(3);
+            const debited = row.get(4);
+            const amount = debited === '' ? credited : debited
+
+            const direction = credited === '' ? Flow.Credit : Flow.Debit;
+            return new Transaction(date, account, amount, details, direction)
+        }).filter<Transaction>(dropNulls);
     }
 
-/// Called by ledgerize to check if the tab is on a statement page that can be
-/// collected.
-/// 
-/// @return The name of the account being displayed in this tab, null otherwise.
+    /// Called by ledgerize to check if the tab is on a statement page that can be
+    /// collected.
+    /// 
+    /// @return The name of the account being displayed in this tab, null otherwise.
     check(): Option<string> {
         const posted = document.getElementById('accDetailsPanelTransaction');
         if (!posted) return null;
