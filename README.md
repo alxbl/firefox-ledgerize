@@ -56,10 +56,6 @@ to the clipboard by clicking on the Ledgerize button with the open tabs.
 
 ## Building the extension
 
-Install webpack cli command (required to run the build command):
-```
-npm i -g webpack webpack-cli
-```
 Install all node dependencies:
 ```
 npm install
