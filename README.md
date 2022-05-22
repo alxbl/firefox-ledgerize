@@ -34,7 +34,7 @@ For a complete list of URLs, see `manifest.json`
 - Scotiabank (Credit Card Statements)
 
 
-# Architecture
+## Architecture
 
 At its core, ledgerize is a simple rule engine with several banking
 site providers responsible for extracting the information from
@@ -53,3 +53,14 @@ to the clipboard by clicking on the Ledgerize button with the open tabs.
 - Create and implement `provider/providerName.js`
 - Add `providerName` imports in `providers.js`
 - Test and create pull request
+
+## Building the extension
+
+Install all node dependencies:
+```
+npm install
+```
+Build the extension to the dist directory:
+```
+npm run build
+```
